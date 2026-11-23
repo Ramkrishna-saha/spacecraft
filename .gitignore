@@ -1,0 +1,12 @@
+# local chat attachments and editor state — never part of the project
+.cloud-attachments/
+.freebuff/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# local preview logs
+*.log

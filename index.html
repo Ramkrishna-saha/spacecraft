@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spacecraft OS Failure Simulator — Team 6 (CS10)</title>
+<meta name="description" content="Interactive simulation of the Spacecraft OS failure case study: FCFS, priority (preemptive / non-preemptive) and Round Robin scheduling, CPU utilisation, rate-monotonic bound and watchdog recovery." />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="dot"></span>
+    <h1>SPACECRAFT OS <em>FAILURE SIMULATOR</em></h1>
+  </div>
+  <p class="sub">Case study: onboard computer failure investigation &middot; Team 6 (CS10) &middot; B.Tech CSE-SE</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab active" data-panel="lab" role="tab">1 &middot; Scheduling Lab</button>
+  <button class="tab" data-panel="util" role="tab">2 &middot; Utilisation &amp; RM</button>
+  <button class="tab" data-panel="replay" role="tab">3 &middot; Incident Replay</button>
+  <button class="tab" data-panel="verify" role="tab">4 &middot; Report Check</button>
+</nav>
+
+<main>
+
+  <!-- ============ PANEL 1: SCHEDULING LAB ============ -->
+  <section id="panel-lab" class="panel active">
+    <div class="card">
+      <div class="card-head">
+        <h2>Sample overloaded workload</h2>
+        <div class="row-btns">
+          <button class="btn ghost" id="resetWorkload">Reset to report workload</button>
+          <button class="btn ghost" id="addTask">+ Add task</button>
+        </div>
+      </div>
+      <p class="hint">
+        One busy moment of the incident. Lower priority number = higher priority. Arrival, burst and
+        priorities are the team's assumed values (the log gives only the event order and the 98% reading).
+      </p>
+      <table class="grid" id="workloadTable">
+        <thead>
+          <tr>
+            <th>Process</th><th>Arrival (ms)</th><th>Burst (ms)</th>
+            <th>Priority</th><th>Deadline (ms)</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Algorithm</h2>
+        <div class="seg" id="algoSwitch">
+          <button class="seg-btn active" data-algo="fcfs">FCFS</button>
+          <button class="seg-btn" data-algo="prioNP">Priority (non-preemptive)</button>
+          <button class="seg-btn" data-algo="prioP">Priority (preemptive)</button>
+          <button class="seg-btn" data-algo="rr">Round Robin</button>
+        </div>
+      </div>
+      <div class="quantum-wrap" id="quantumWrap">
+        <label for="quantum">Time quantum (ms)</label>
+        <input type="number" id="quantum" min="1" max="200" step="1" value="10" />
+      </div>
+
+      <div class="metric-row" id="metricRow"></div>
+
+      <div class="gantt-wrap">
+        <div class="gantt-title">
+          <span>Gantt chart</span>
+          <span class="legend">
+            <i class="lg lg-s"></i>S = P_storage
+            <i class="lg lg-c"></i>C = P_comm
+            <i class="lg lg-n"></i>N = P_nav
+            <i class="lg lg-d"></i>deadline
+          </span>
+        </div>
+        <div id="gantt"></div>
+      </div>
+
+      <table class="grid results" id="resultTable">
+        <thead>
+          <tr><th>Process</th><th>Arrival</th><th>Burst</th><th>Completion</th>
+          <th>Turnaround</th><th>Waiting</th><th>Deadline</th><th>Result</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="verdict" id="labVerdict"></p>
+    </div>
+  </section>
+
+  <!-- ============ PANEL 2: UTILISATION & RM ============ -->
+  <section id="panel-util" class="panel">
+    <div class="card">
+      <div class="card-head"><h2>Periodic tasks &middot; U = C / T</h2></div>
+      <p class="hint">Burst (C) over period (T) for each onboard task. Values are the assumed workload from the report.</p>
+      <div class="bars" id="utilBars"></div>
+      <div class="split">
+        <div class="stat"><span class="stat-label">Total utilisation</span><strong id="utilTotal">—</strong></div>
+        <div class="stat"><span class="stat-label">RM bound, n = 5</span><strong id="utilBound">—</strong></div>
+        <div class="stat"><span class="stat-label">Slack to bound</span><strong id="utilSlack">—</strong></div>
+        <div class="stat"><span class="stat-label">RM guarantee</span><strong id="utilVerdict">—</strong></div>
+      </div>
+      <p class="hint warn" id="utilNote"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Rate-monotonic utilisation bound</h2></div>
+      <p class="hint">
+        Liu &amp; Layland: n(2<sup>1/n</sup> − 1). The bound falls towards ln 2 ≈ 69.3% as the task count grows.
+        The marker is this workload at n = 5.
+      </p>
+      <div id="rmChart"></div>
+    </div>
+  </section>
+
+  <!-- ============ PANEL 3: INCIDENT REPLAY ============ -->
+  <section id="panel-replay" class="panel">
+    <div class="card">
+      <div class="card-head">
+        <h2>Incident timeline</h2>
+        <div class="row-btns">
+          <div class="seg small" id="modeSwitch">
+            <button class="seg-btn active" data-mode="baseline">As logged (overload)</button>
+            <button class="seg-btn" data-mode="fixed">Proposed design</button>
+          </div>
+          <button class="btn" id="playReplay">▶ Play</button>
+          <button class="btn ghost" id="resetReplay">Reset</button>
+        </div>
+      </div>
+
+      <div class="replay-top">
+        <div class="clock"><span id="replayClock">10:00:01</span><small>onboard clock</small></div>
+        <div class="cpu-gauge">
+          <div class="cpu-head"><span>CPU utilisation</span><strong id="cpuValue">0%</strong></div>
+          <div class="track"><div class="fill" id="cpuFill"></div><div class="bound" id="cpuBound"></div></div>
+          <p class="hint tiny">Dashed marker = RM bound (74.3%)</p>
+        </div>
+      </div>
+
+      <table class="grid states" id="stateTable">
+        <thead>
+          <tr><th>Time</th><th>Event</th><th>P_sensor</th><th>P_nav</th><th>P_comm</th><th>P_storage</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="hint" id="replayNote"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Watchdog log</h2></div>
+      <ul class="eventlog" id="eventLog"></ul>
+    </div>
+  </section>
+
+  <!-- ============ PANEL 4: REPORT CHECK ============ -->
+  <section id="panel-verify" class="panel">
+    <div class="card">
+      <div class="card-head"><h2>Simulation vs. report figures</h2></div>
+      <p class="hint">
+        Values recalculated live by this simulator from the default workload, compared with the numbers
+        printed in the case-study report. All times in ms.
+      </p>
+      <table class="grid" id="verifyTable">
+        <thead>
+          <tr><th>Algorithm</th><th>Avg WT</th><th>Report</th><th>Avg TAT</th><th>Report</th>
+          <th>P_nav finish</th><th>Report</th><th>Match</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="split">
+        <div class="stat"><span class="stat-label">Utilisation (sim)</span><strong id="vUtil">—</strong></div>
+        <div class="stat"><span class="stat-label">Utilisation (report)</span><strong>98%</strong></div>
+        <div class="stat"><span class="stat-label">RM bound (sim)</span><strong id="vBound">—</strong></div>
+        <div class="stat"><span class="stat-label">RM bound (report)</span><strong>74.3%</strong></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>
+    Model results only — the log supports the event order and the 98% CPU reading; priorities, burst
+    times, periods and the 40&nbsp;ms navigation deadline are team assumptions.
+  </p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
