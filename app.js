@@ -347,26 +347,26 @@ function renderRmChart(bound) {
 
   const pts = ns.map(n => `${x(n).toFixed(1)},${y(rmBound(n)).toFixed(1)}`).join(' ');
   const grid = [0.6, 0.7, 0.8, 0.9, 1.0].map(u =>
-    `<line x1="${padL}" y1="${y(u)}" x2="${W - padR}" y2="${y(u)}" stroke="#1d2d4a" stroke-width="1"/>
-     <text x="${padL - 8}" y="${y(u) + 4}" fill="#7f93b3" font-size="10" text-anchor="end">${(u * 100).toFixed(0)}%</text>`
+    `<line x1="${padL}" y1="${y(u)}" x2="${W - padR}" y2="${y(u)}" stroke="#dcd5c8" stroke-width="1"/>
+     <text x="${padL - 8}" y="${y(u) + 4}" fill="#6e6a61" font-size="10" text-anchor="end">${(u * 100).toFixed(0)}%</text>`
   ).join('');
 
   const xticks = ns.map(n =>
-    `<text x="${x(n)}" y="${H - padB + 18}" fill="#7f93b3" font-size="10" text-anchor="middle">${n}</text>`
+    `<text x="${x(n)}" y="${H - padB + 18}" fill="#6e6a61" font-size="10" text-anchor="middle">${n}</text>`
   ).join('');
 
   const modelU = 0.98;
   $('#rmChart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img"
       aria-label="Rate-monotonic utilisation bound against task count">
       ${grid}
-      <polyline points="${pts}" fill="none" stroke="#38e1ff" stroke-width="2"/>
-      <circle cx="${x(5)}" cy="${y(bound)}" r="4.5" fill="#38e1ff"/>
-      <line x1="${x(5)}" y1="${y(bound)}" x2="${x(5)}" y2="${y(modelU)}" stroke="#ff5470" stroke-dasharray="4 4" stroke-width="1.5"/>
-      <circle cx="${x(5)}" cy="${y(modelU)}" r="5" fill="#ff5470"/>
-      <text x="${x(5) + 12}" y="${y(modelU) + 4}" fill="#ff5470" font-size="11" font-family="monospace">this workload: 98%</text>
-      <text x="${W - padR}" y="${y(bound) - 8}" fill="#38e1ff" font-size="11" text-anchor="end" font-family="monospace">bound n=5: ${(bound * 100).toFixed(1)}%</text>
+      <polyline points="${pts}" fill="none" stroke="#24506e" stroke-width="2"/>
+      <circle cx="${x(5)}" cy="${y(bound)}" r="4.5" fill="#24506e"/>
+      <line x1="${x(5)}" y1="${y(bound)}" x2="${x(5)}" y2="${y(modelU)}" stroke="#8f332c" stroke-dasharray="4 4" stroke-width="1.5"/>
+      <circle cx="${x(5)}" cy="${y(modelU)}" r="5" fill="#8f332c"/>
+      <text x="${x(5) + 12}" y="${y(modelU) + 4}" fill="#8f332c" font-size="11" font-family="monospace">this workload: 98%</text>
+      <text x="${W - padR}" y="${y(bound) - 8}" fill="#24506e" font-size="11" text-anchor="end" font-family="monospace">bound n=5: ${(bound * 100).toFixed(1)}%</text>
       ${xticks}
-      <text x="${(padL + W - padR) / 2}" y="${H - 4}" fill="#7f93b3" font-size="10" text-anchor="middle">number of tasks (n)</text>
+      <text x="${(padL + W - padR) / 2}" y="${H - 4}" fill="#6e6a61" font-size="10" text-anchor="middle">number of tasks (n)</text>
     </svg>`;
 }
 
