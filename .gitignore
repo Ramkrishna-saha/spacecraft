@@ -10,3 +10,6 @@ Thumbs.db
 
 # local preview logs
 *.log
+
+# hosting packaging (generated from index.html, not part of the project)
+deploy/
