@@ -8,6 +8,8 @@ prints.
 The page is plain HTML + CSS + JavaScript with **no build step and no dependencies** — open
 `index.html` and it runs, which also makes it work directly on GitHub Pages.
 
+**Repository:** <https://github.com/Ramkrishna-saha/spacecraft>
+
 ---
 
 ## What it shows
@@ -85,7 +87,7 @@ python -m http.server 8000
 
 ## Publish with GitHub Pages
 
-1. Push this folder to a GitHub repository.
+1. Push this folder to a GitHub repository (already done for this one).
 2. Repository → **Settings → Pages**.
 3. **Source: Deploy from a branch** → branch `main`, folder `/ (root)` → **Save**.
 4. The site appears at `https://<user>.github.io/<repo>/` within a minute or two.
@@ -96,7 +98,7 @@ Because the entry point is `index.html` at the repository root, no extra configu
 
 ```
 index.html   markup and the four panels
-styles.css   dark mission-control theme, Gantt / bar / gauge styling
+styles.css   paper-and-ink report theme, Gantt / bar / gauge styling
 app.js       scheduling engine, utilisation model, replay, verification
 ```
 
