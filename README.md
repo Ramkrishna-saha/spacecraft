@@ -5,8 +5,9 @@ Investigation”** (Team 6, CS10, B.Tech CSE-SE). It replays the logged incident
 scheduling algorithms from the report on the same workload, and checks the numbers the report
 prints.
 
-The page is plain HTML + CSS + JavaScript with **no build step and no dependencies** — open
-`index.html` and it runs, which also makes it work directly on GitHub Pages.
+Everything is in **one self-contained file, `index.html`** — the CSS and JavaScript are inline, with
+no build step, no dependencies and no other files to copy. Just open it (double-click) and it runs,
+which also makes it work directly on GitHub Pages.
 
 **Repository:** <https://github.com/Ramkrishna-saha/spacecraft>
 
@@ -73,10 +74,8 @@ and a watchdog with selective restart.
 
 No installation:
 
-```
-open index.html            # macOS
-start index.html           # Windows
-```
+Just double-click `index.html` (or run `start index.html` on Windows, `open index.html` on macOS).
+It needs no server and no internet connection.
 
 Or serve it locally (any static server works):
 
@@ -94,12 +93,11 @@ python -m http.server 8000
 
 Because the entry point is `index.html` at the repository root, no extra configuration is needed.
 
-## Files
+## File
 
 ```
-index.html   markup and the four panels
-styles.css   paper-and-ink report theme, Gantt / bar / gauge styling
-app.js       scheduling engine, utilisation model, replay, verification
+index.html   the whole project: markup, four panels, paper-and-ink styles and the
+             scheduling engine (inlined CSS + JavaScript)
 ```
 
 ## Model notes and limitations
